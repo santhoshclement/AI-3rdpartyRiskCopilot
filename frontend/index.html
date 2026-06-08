@@ -1,0 +1,415 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>AI Third-Party Risk Command Center</title>
+
+  <style>
+    * {
+      box-sizing: border-box;
+    }
+
+    body {
+      margin: 0;
+      font-family: "Segoe UI", Arial, sans-serif;
+      background: #0b1220;
+      color: #e2e8f0;
+    }
+
+    header {
+      background: linear-gradient(135deg, #020617, #0f172a, #1e293b);
+      color: white;
+      padding: 35px 20px;
+      text-align: center;
+      border-bottom: 1px solid #334155;
+    }
+
+    header h1 {
+      margin: 0;
+      font-size: 34px;
+      color: #f8fafc;
+    }
+
+    header p {
+      margin-top: 10px;
+      color: #94a3b8;
+      font-size: 16px;
+    }
+
+    .container {
+      width: 92%;
+      max-width: 1200px;
+      margin: 30px auto;
+    }
+
+    .hero-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+      gap: 20px;
+      margin-bottom: 25px;
+    }
+
+    .stat-card {
+      background: #111827;
+      border: 1px solid #374151;
+      border-radius: 14px;
+      padding: 22px;
+      text-align: center;
+      box-shadow: 0 0 18px rgba(0,0,0,0.35);
+    }
+
+    .stat-card h3 {
+      color: #06b6d4;
+      font-size: 34px;
+      margin: 0;
+    }
+
+    .stat-card p {
+      color: #cbd5e1;
+      margin-bottom: 0;
+    }
+
+    .card {
+      background: #111827;
+      padding: 25px;
+      margin-bottom: 25px;
+      border-radius: 14px;
+      border: 1px solid #374151;
+      box-shadow: 0 0 18px rgba(0,0,0,0.35);
+    }
+
+    h2 {
+      margin-top: 0;
+      color: #f8fafc;
+      border-bottom: 1px solid #334155;
+      padding-bottom: 10px;
+    }
+
+    label {
+      display: block;
+      margin-top: 15px;
+      font-weight: 600;
+      color: #cbd5e1;
+    }
+
+    input,
+    select,
+    textarea {
+      width: 100%;
+      padding: 11px;
+      margin-top: 6px;
+      background: #1f2937;
+      border: 1px solid #4b5563;
+      border-radius: 8px;
+      font-size: 14px;
+      color: #f8fafc;
+    }
+
+    input:focus,
+    select:focus,
+    textarea:focus {
+      border-color: #06b6d4;
+      outline: none;
+      box-shadow: 0 0 0 2px rgba(6,182,212,0.2);
+    }
+
+    input::placeholder,
+    textarea::placeholder {
+      color: #64748b;
+    }
+
+    button {
+      margin-top: 20px;
+      padding: 12px 22px;
+      background: linear-gradient(90deg, #06b6d4, #2563eb);
+      color: white;
+      border: none;
+      border-radius: 8px;
+      cursor: pointer;
+      font-weight: bold;
+      transition: 0.2s ease;
+    }
+
+    button:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 18px rgba(37,99,235,0.35);
+    }
+
+    .grid {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+      gap: 15px;
+    }
+
+    .risk-box {
+      padding: 18px;
+      border-radius: 10px;
+      color: white;
+      font-weight: bold;
+      text-align: center;
+      margin-top: 15px;
+      font-size: 17px;
+    }
+
+    .low {
+      background: #065f46;
+    }
+
+    .medium {
+      background: #92400e;
+    }
+
+    .high {
+      background: #991b1b;
+    }
+
+    .critical {
+      background: #7f1d1d;
+      box-shadow: 0 0 20px rgba(239,68,68,0.45);
+    }
+
+    .result {
+      background: #0f172a;
+      border-left: 5px solid #06b6d4;
+      padding: 16px;
+      margin-top: 15px;
+      border-radius: 8px;
+      white-space: pre-line;
+      color: #dbeafe;
+      line-height: 1.6;
+    }
+
+    footer {
+      text-align: center;
+      color: #64748b;
+      padding: 25px;
+      font-size: 13px;
+    }
+  </style>
+</head>
+
+<body>
+
+<header>
+  <h1>AI Third-Party Risk Command Center</h1>
+  <p>AI-Powered Vendor Security Assessment Platform for Regulated Industries</p>
+</header>
+
+<div class="container">
+
+  <div class="hero-stats">
+    <div class="stat-card">
+      <h3>147</h3>
+      <p>Vendors Assessed</p>
+    </div>
+
+    <div class="stat-card">
+      <h3>23</h3>
+      <p>High Risk Vendors</p>
+    </div>
+
+    <div class="stat-card">
+      <h3>41</h3>
+      <p>Missing Controls</p>
+    </div>
+
+    <div class="stat-card">
+      <h3>87%</h3>
+      <p>Compliance Score</p>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>1. Vendor Profile</h2>
+
+    <div class="grid">
+      <div>
+        <label>Vendor Name</label>
+        <input type="text" id="vendorName" placeholder="ABC Payments LLC">
+      </div>
+
+      <div>
+        <label>Service Provided</label>
+        <input type="text" id="service" placeholder="Payment Processing">
+      </div>
+
+      <div>
+        <label>Country</label>
+        <input type="text" id="country" placeholder="UAE">
+      </div>
+
+      <div>
+        <label>Business Critical?</label>
+        <select id="critical">
+          <option>No</option>
+          <option>Yes</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Handles PII?</label>
+        <select id="pii">
+          <option>No</option>
+          <option>Yes</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Handles Payment Data?</label>
+        <select id="payment">
+          <option>No</option>
+          <option>Yes</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Requires System Access?</label>
+        <select id="access">
+          <option>No</option>
+          <option>Yes</option>
+        </select>
+      </div>
+
+      <div>
+        <label>Cloud Hosted?</label>
+        <select id="cloud">
+          <option>No</option>
+          <option>Yes</option>
+        </select>
+      </div>
+    </div>
+  </div>
+
+  <div class="card">
+    <h2>2. Upload Vendor Evidence</h2>
+
+    <label>Upload SOC 2 / ISO / PCI / Security Questionnaire / Policy Documents</label>
+    <input type="file" id="docs" multiple>
+
+    <button onclick="showUploadedFiles()">Show Uploaded Files</button>
+
+    <div id="fileList" class="result"></div>
+  </div>
+
+  <div class="card">
+    <h2>3. AI Risk Assessment</h2>
+
+    <button onclick="generateAssessment()">Generate Risk Assessment</button>
+
+    <div id="riskSummary"></div>
+    <div id="assessmentResult" class="result"></div>
+  </div>
+
+  <div class="card">
+    <h2>4. Ask Vendor Document Question</h2>
+
+    <label>Ask a question</label>
+    <textarea id="question" rows="4" placeholder="Does the vendor enforce MFA for privileged users?"></textarea>
+
+    <button onclick="askQuestion()">Ask AI</button>
+
+    <div id="answer" class="result"></div>
+  </div>
+
+</div>
+
+<footer>
+  AI Third-Party Risk Command Center | Demo Project by Santhosh Clement
+</footer>
+
+<script>
+  function showUploadedFiles() {
+    const files = document.getElementById("docs").files;
+    let output = "Uploaded Evidence Files:\\n";
+
+    if (files.length === 0) {
+      output = "No files uploaded.";
+    } else {
+      for (let i = 0; i < files.length; i++) {
+        output += "- " + files[i].name + "\\n";
+      }
+    }
+
+    document.getElementById("fileList").innerText = output;
+  }
+
+  function generateAssessment() {
+    let score = 0;
+
+    const vendor = document.getElementById("vendorName").value || "Unknown Vendor";
+    const service = document.getElementById("service").value || "Not Provided";
+    const country = document.getElementById("country").value || "Not Provided";
+
+    if (document.getElementById("critical").value === "Yes") score += 20;
+    if (document.getElementById("pii").value === "Yes") score += 15;
+    if (document.getElementById("payment").value === "Yes") score += 25;
+    if (document.getElementById("access").value === "Yes") score += 20;
+    if (document.getElementById("cloud").value === "Yes") score += 10;
+
+    let rating = "Low";
+    let cssClass = "low";
+
+    if (score > 30 && score <= 60) {
+      rating = "Medium";
+      cssClass = "medium";
+    } else if (score > 60 && score <= 80) {
+      rating = "High";
+      cssClass = "high";
+    } else if (score > 80) {
+      rating = "Critical";
+      cssClass = "critical";
+    }
+
+    document.getElementById("riskSummary").innerHTML = `
+      <div class="risk-box ${cssClass}">
+        Risk Score: ${score}/100 | Rating: ${rating}
+      </div>
+    `;
+
+    document.getElementById("assessmentResult").innerText =
+`Vendor: ${vendor}
+Service: ${service}
+Country: ${country}
+
+Overall Risk Rating: ${rating}
+
+Key Findings:
+- Vendor business criticality and data handling were assessed.
+- PII, payment data, system access, and cloud hosting increase third-party risk.
+- Document validation is required for MFA, encryption, compliance, incident response, and BCP/DR.
+
+Recommended Vendor Questions:
+1. Do you enforce MFA for all users and administrators?
+2. Do you encrypt data at rest and in transit?
+3. Do you have ISO 27001, SOC 2, or PCI DSS certification?
+4. What is your incident notification SLA?
+5. Do you use subcontractors or fourth parties?
+6. What are your RTO and RPO values?
+7. Where is customer data stored and processed?
+8. Do you support secure data deletion after contract termination?
+
+Approval Recommendation:
+Conditional approval pending vendor evidence review, compliance validation, and security control confirmation.`;
+  }
+
+  function askQuestion() {
+    const question = document.getElementById("question").value;
+
+    if (!question) {
+      document.getElementById("answer").innerText = "Please enter a question.";
+      return;
+    }
+
+    document.getElementById("answer").innerText =
+`Demo AI Answer:
+
+Your Question:
+"${question}"
+
+This interface is ready for RAG integration. In the next phase, uploaded vendor documents will be parsed, indexed, and searched to provide evidence-based AI answers.`;
+  }
+</script>
+
+</body>
+</html>
