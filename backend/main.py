@@ -1,11 +1,10 @@
-from fastapi import FastAPI, UploadFile, File
+from fastapi import FastAPI
 from fastapi.middleware.cors import CORSMiddleware
+from pydantic import BaseModel
 import os
-import shutil
 
 app = FastAPI(title="AI Third-Party Risk API")
 
-# Allow frontend access
 app.add_middleware(
     CORSMiddleware,
     allow_origins=["*"],
@@ -14,68 +13,53 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-UPLOAD_FOLDER = "uploads"
-
-if not os.path.exists(UPLOAD_FOLDER):
-    os.makedirs(UPLOAD_FOLDER)
+class VendorAssessment(BaseModel):
+    vendorName: str
+    businessCritical: bool
+    pii: bool
+    paymentData: bool
+    systemAccess: bool
+    cloudHosted: bool
 
 @app.get("/")
-def root():
+def health():
     return {
         "status": "healthy",
         "application": "AI Third-Party Risk Command Center"
     }
 
-@app.post("/upload")
-async def upload_files(files: list[UploadFile] = File(...)):
-
-    uploaded_files = []
-
-    for file in files:
-        file_path = os.path.join(UPLOAD_FOLDER, file.filename)
-
-        with open(file_path, "wb") as buffer:
-            shutil.copyfileobj(file.file, buffer)
-
-        uploaded_files.append(file.filename)
-
-    return {
-        "message": "Files uploaded successfully",
-        "files": uploaded_files
-    }
-
 @app.post("/analyze-risk")
-async def analyze_risk(vendor: dict):
+def analyze_risk(data: VendorAssessment):
 
     score = 0
 
-    if vendor.get("businessCritical"):
+    if data.businessCritical:
         score += 20
 
-    if vendor.get("pii"):
+    if data.pii:
         score += 15
 
-    if vendor.get("paymentData"):
+    if data.paymentData:
         score += 25
 
-    if vendor.get("systemAccess"):
+    if data.systemAccess:
         score += 20
 
-    if vendor.get("cloudHosted"):
+    if data.cloudHosted:
         score += 10
 
-    rating = "Low"
-
-    if score > 30:
+    if score <= 30:
+        rating = "Low"
+    elif score <= 60:
         rating = "Medium"
-
-    if score > 60:
+    elif score <= 80:
         rating = "High"
-
-    if score > 80:
+    else:
         rating = "Critical"
 
     return {
+        "vendor": data.vendorName,
         "risk_score": score,
-        "risk_rating": rating
+        "risk_rating": rating,
+        "recommendation": "Review vendor controls, MFA, encryption, incident response and compliance evidence."
     }
