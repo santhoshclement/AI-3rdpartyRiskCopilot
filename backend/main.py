@@ -1,7 +1,9 @@
-from fastapi import FastAPI
+from fastapi import FastAPI, UploadFile, File, Form
 from fastapi.middleware.cors import CORSMiddleware
-from pydantic import BaseModel
+from google import genai
+from pypdf import PdfReader
 import os
+import shutil
 
 app = FastAPI(title="AI Third-Party Risk API")
 
@@ -13,13 +15,21 @@ app.add_middleware(
     allow_headers=["*"],
 )
 
-class VendorAssessment(BaseModel):
-    vendorName: str
-    businessCritical: bool
-    pii: bool
-    paymentData: bool
-    systemAccess: bool
-    cloudHosted: bool
+UPLOAD_FOLDER = "uploads"
+os.makedirs(UPLOAD_FOLDER, exist_ok=True)
+
+client = genai.Client(api_key=os.getenv("GEMINI_API_KEY"))
+
+def extract_pdf_text(file_path):
+    text = ""
+    reader = PdfReader(file_path)
+    for page in reader.pages:
+        text += page.extract_text() or ""
+    return text[:15000]
+
+def extract_txt_text(file_path):
+    with open(file_path, "r", encoding="utf-8", errors="ignore") as f:
+        return f.read()[:15000]
 
 @app.get("/")
 def health():
@@ -28,38 +38,67 @@ def health():
         "application": "AI Third-Party Risk Command Center"
     }
 
-@app.post("/analyze-risk")
-def analyze_risk(data: VendorAssessment):
+@app.post("/ai-assess")
+async def ai_assess(
+    vendor_name: str = Form(...),
+    service: str = Form(...),
+    country: str = Form(...),
+    business_critical: str = Form(...),
+    pii: str = Form(...),
+    payment_data: str = Form(...),
+    system_access: str = Form(...),
+    cloud_hosted: str = Form(...),
+    files: list[UploadFile] = File(...)
+):
+    combined_text = ""
 
-    score = 0
+    for file in files:
+        file_path = os.path.join(UPLOAD_FOLDER, file.filename)
 
-    if data.businessCritical:
-        score += 20
+        with open(file_path, "wb") as buffer:
+            shutil.copyfileobj(file.file, buffer)
 
-    if data.pii:
-        score += 15
+        if file.filename.lower().endswith(".pdf"):
+            combined_text += extract_pdf_text(file_path)
+        elif file.filename.lower().endswith(".txt"):
+            combined_text += extract_txt_text(file_path)
 
-    if data.paymentData:
-        score += 25
+    prompt = f"""
+You are an AI Third-Party Cyber Risk Assessment Assistant.
 
-    if data.systemAccess:
-        score += 20
+Analyze the vendor profile and uploaded document evidence.
 
-    if data.cloudHosted:
-        score += 10
+Vendor:
+- Name: {vendor_name}
+- Service: {service}
+- Country: {country}
+- Business Critical: {business_critical}
+- Handles PII: {pii}
+- Handles Payment Data: {payment_data}
+- Requires System Access: {system_access}
+- Cloud Hosted: {cloud_hosted}
 
-    if score <= 30:
-        rating = "Low"
-    elif score <= 60:
-        rating = "Medium"
-    elif score <= 80:
-        rating = "High"
-    else:
-        rating = "Critical"
+Document Evidence:
+{combined_text}
+
+Return a professional third-party risk report with:
+
+1. Executive Summary
+2. Overall Risk Rating: Low / Medium / High / Critical
+3. Key Security Findings
+4. Missing Controls
+5. Evidence Found
+6. Recommended Vendor Questions
+7. Risk Treatment Recommendation
+8. Approval Decision
+"""
+
+    response = client.models.generate_content(
+        model="gemini-3.5-flash",
+        contents=prompt
+    )
 
     return {
-        "vendor": data.vendorName,
-        "risk_score": score,
-        "risk_rating": rating,
-        "recommendation": "Review vendor controls, MFA, encryption, incident response and compliance evidence."
+        "vendor": vendor_name,
+        "ai_report": response.text
     }
